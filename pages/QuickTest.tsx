@@ -1,15 +1,36 @@
+// FIX: Added React types reference directive to resolve JSX intrinsic elements errors.
 /// <reference types="react" />
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { QUICK_TEST_QUESTIONS } from '../constants';
 import { TestQuestion } from '../types';
-import { getCareerRecommendation } from '../services/geminiService';
+import { getCareerRecommendation, generateTestQuestions } from '../services/geminiService';
 
 export const QuickTest: React.FC = () => {
+  const [questions, setQuestions] = useState<TestQuestion[]>([]);
+  const [isLoadingQuestions, setIsLoadingQuestions] = useState(true);
+  const [questionError, setQuestionError] = useState<string | null>(null);
+
   const [answers, setAnswers] = useState<{ [key: string]: string }>({});
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchQuestions = async () => {
+        try {
+            setQuestionError(null);
+            setIsLoadingQuestions(true);
+            const generatedQuestions = await generateTestQuestions(3);
+            setQuestions(generatedQuestions);
+        } catch (err) {
+            setQuestionError("Failed to load dynamic questions. Using fallback.");
+            console.error(err);
+        } finally {
+            setIsLoadingQuestions(false);
+        }
+    };
+    fetchQuestions();
+  }, []);
 
   const handleOptionChange = (questionId: string, answerText: string) => {
     setAnswers(prev => ({ ...prev, [questionId]: answerText }));
@@ -17,23 +38,37 @@ export const QuickTest: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (Object.keys(answers).length < QUICK_TEST_QUESTIONS.length) {
-      setError("Please answer all questions before submitting.");
+    if (Object.keys(answers).length < questions.length) {
+      setSubmitError("Please answer all questions before submitting.");
       return;
     }
-    setError(null);
-    setIsLoading(true);
+    setSubmitError(null);
+    setIsSubmitting(true);
     
     try {
         const result = await getCareerRecommendation(answers);
         navigate('/test-result', { state: { result, isQuickTest: true } });
     } catch (err) {
-        setError("Failed to get recommendation. Please try again later.");
+        setSubmitError("Failed to get recommendation. Please try again later.");
         console.error(err);
     } finally {
-        setIsLoading(false);
+        setIsSubmitting(false);
     }
   };
+
+  const renderLoadingSkeleton = () => (
+    <div className="space-y-8">
+        {[...Array(3)].map((_, i) => (
+            <div key={i} className="animate-pulse">
+                <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-4"></div>
+                <div className="space-y-3">
+                    <div className="h-12 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                    <div className="h-12 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                </div>
+            </div>
+        ))}
+    </div>
+  );
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -43,38 +78,41 @@ export const QuickTest: React.FC = () => {
       </p>
 
       <form onSubmit={handleSubmit} className="space-y-8 bg-white dark:bg-gray-800 p-8 rounded-lg shadow-lg">
-        {QUICK_TEST_QUESTIONS.map((q: TestQuestion, index: number) => (
-          <div key={q.id} className="border-b border-gray-200 dark:border-gray-700 pb-6">
-            <h2 className="text-lg font-semibold mb-4">
-              <span className="text-primary-500 mr-2">{index + 1}.</span>{q.question}
-            </h2>
-            <div className="space-y-3">
-              {q.options.map(option => (
-                <label key={option.text} className="flex items-center p-3 rounded-lg border border-gray-300 dark:border-gray-600 cursor-pointer hover:bg-primary-50 dark:hover:bg-gray-700 transition-colors duration-200 has-[:checked]:bg-primary-100 has-[:checked]:border-primary-500 dark:has-[:checked]:bg-primary-900/50 dark:has-[:checked]:border-primary-500">
-                  <input
-                    type="radio"
-                    name={q.id}
-                    value={option.text}
-                    onChange={() => handleOptionChange(q.id, option.text)}
-                    className="h-4 w-4 text-primary-600 border-gray-300 focus:ring-primary-500"
-                    required
-                  />
-                  <span className="ml-3 text-gray-700 dark:text-gray-300">{option.text}</span>
-                </label>
-              ))}
+        {isLoadingQuestions ? renderLoadingSkeleton() : (
+          questions.map((q: TestQuestion, index: number) => (
+            <div key={q.id} className="border-b border-gray-200 dark:border-gray-700 pb-6">
+              <h2 className="text-lg font-semibold mb-4">
+                <span className="text-primary-500 mr-2">{index + 1}.</span>{q.question}
+              </h2>
+              <div className="space-y-3">
+                {q.options.map(option => (
+                  <label key={option.text} className="flex items-center p-3 rounded-lg border border-gray-300 dark:border-gray-600 cursor-pointer hover:bg-primary-50 dark:hover:bg-gray-700 transition-colors duration-200 has-[:checked]:bg-primary-100 has-[:checked]:border-primary-500 dark:has-[:checked]:bg-primary-900/50 dark:has-[:checked]:border-primary-500">
+                    <input
+                      type="radio"
+                      name={q.id}
+                      value={option.text}
+                      onChange={() => handleOptionChange(q.id, option.text)}
+                      className="h-4 w-4 text-primary-600 border-gray-300 focus:ring-primary-500"
+                      required
+                    />
+                    <span className="ml-3 text-gray-700 dark:text-gray-300">{option.text}</span>
+                  </label>
+                ))}
+              </div>
             </div>
-          </div>
-        ))}
+          ))
+        )}
 
-        {error && <p className="text-red-500 text-center">{error}</p>}
+        {questionError && <p className="text-yellow-500 text-center">{questionError}</p>}
+        {submitError && <p className="text-red-500 text-center">{submitError}</p>}
 
         <div className="text-center pt-4">
           <button 
             type="submit" 
-            disabled={isLoading}
+            disabled={isSubmitting || isLoadingQuestions}
             className="w-full md:w-auto inline-flex items-center justify-center px-12 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 disabled:bg-primary-300 disabled:cursor-not-allowed"
           >
-            {isLoading ? (
+            {isSubmitting ? (
               <>
                 <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>

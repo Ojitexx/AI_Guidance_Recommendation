@@ -1,3 +1,4 @@
+// FIX: Re-added React types reference directive to resolve JSX intrinsic elements errors.
 /// <reference types="react" />
 import React, { useMemo, useState, useEffect } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';

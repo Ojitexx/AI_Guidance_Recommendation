@@ -1,3 +1,4 @@
+// FIX: Re-added React types reference directive to resolve JSX intrinsic elements errors.
 /// <reference types="react" />
 import React, { useEffect } from 'react';
 import { useLocation, Link, useNavigate } from 'react-router-dom';

@@ -1,3 +1,4 @@
+// FIX: Re-added React types reference directive to resolve JSX intrinsic elements errors.
 /// <reference types="react" />
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';

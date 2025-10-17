@@ -1,6 +1,6 @@
-
 import { GoogleGenAI, Type } from "@google/genai";
-import { CareerPathName, TestResult } from '../types';
+import { CareerPathName, TestResult, TestQuestion } from '../types';
+import { TEST_QUESTIONS } from '../constants';
 
 if (!process.env.API_KEY) {
   console.warn("API_KEY environment variable not set. Using mock data.");
@@ -10,7 +10,7 @@ const ai = process.env.API_KEY ? new GoogleGenAI({ apiKey: process.env.API_KEY }
 
 const careerPathValues = Object.values(CareerPathName);
 
-const responseSchema = {
+const recommendationResponseSchema = {
   type: Type.OBJECT,
   properties: {
     recommendedCareer: {
@@ -45,13 +45,36 @@ const responseSchema = {
   required: ["recommendedCareer", "skills", "salaryRange", "jobRoles", "relevantBooks", "reasoning"],
 };
 
+const questionGenerationSchema = {
+    type: Type.ARRAY,
+    items: {
+        type: Type.OBJECT,
+        properties: {
+            id: { type: Type.STRING },
+            question: { type: Type.STRING },
+            options: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        text: { type: Type.STRING },
+                        value: { type: Type.NUMBER, description: "A value from 1 to 5 representing a career path category, keep it diverse." }
+                    },
+                    required: ["text", "value"]
+                }
+            }
+        },
+        required: ["id", "question", "options"]
+    }
+};
+
 const mockResult: TestResult = {
   recommendedCareer: CareerPathName.WEB_DEV,
   skills: ["HTML & CSS", "JavaScript (ES6+)", "React or Vue.js", "Node.js & Express", "Git & GitHub", "API Integration"],
   salaryRange: "₦150,000 - ₦700,000 / month (entry to mid-level)",
   jobRoles: ["Frontend Developer", "Backend Developer", "Full-Stack Developer", "UI/UX Developer"],
   relevantBooks: ["Eloquent JavaScript by Marijn Haverbeke", "You Don't Know JS series by Kyle Simpson", "Designing Web APIs by Brenda Jin et al."],
-  reasoning: "This is a mock result because the API key is not configured. Your answers suggest a preference for building tangible, user-facing products and an interest in creative problem-solving, which aligns well with the skills required for modern Web Development."
+  reasoning: "Based on your answers, you show a preference for building tangible, user-facing products and an interest in creative problem-solving. These qualities align well with the skills required for modern Web Development."
 };
 
 export const getCareerRecommendation = async (answers: { [key: string]: string }): Promise<TestResult> => {
@@ -82,7 +105,7 @@ export const getCareerRecommendation = async (answers: { [key: string]: string }
       contents: prompt,
       config: {
         responseMimeType: "application/json",
-        responseSchema: responseSchema,
+        responseSchema: recommendationResponseSchema,
         temperature: 0.5,
       },
     });
@@ -90,17 +113,56 @@ export const getCareerRecommendation = async (answers: { [key: string]: string }
     const jsonString = response.text.trim();
     const result = JSON.parse(jsonString);
     
-    // Validate that the recommended career is one of the allowed enums
     if (!careerPathValues.includes(result.recommendedCareer)) {
         console.error("API returned an invalid career path:", result.recommendedCareer);
-        // Fallback to a default or mock result
         return mockResult;
     }
 
     return result as TestResult;
   } catch (error) {
     console.error("Error fetching career recommendation from Gemini API:", error);
-    // In case of an API error, return the mock result as a fallback
     return mockResult;
   }
+};
+
+export const generateTestQuestions = async (count: number): Promise<TestQuestion[]> => {
+    if (!ai) {
+        console.warn("AI service not available, using fallback questions.");
+        return Promise.resolve(TEST_QUESTIONS.slice(0, count));
+    }
+
+    const prompt = `
+        You are a career guidance counselor for computer science students. 
+        Generate ${count} unique multiple-choice questions for a career assessment test.
+        Each question must have exactly 4 options.
+        The questions should help determine a student's aptitude and interest in fields like:
+        1. Networking/Cloud Computing
+        2. Web Development
+        3. Cybersecurity
+        4. Software Engineering
+        5. AI/Data Science
+
+        Assign a 'value' from 1 to 5 for each option, corresponding to one of the fields above.
+        For the 'id' of each question, generate a short unique string like 'q1', 'q2', etc.
+        Return the result in the specified JSON format.
+    `;
+
+    try {
+        const response = await ai.models.generateContent({
+            model: "gemini-2.5-flash",
+            contents: prompt,
+            config: {
+                responseMimeType: "application/json",
+                responseSchema: questionGenerationSchema,
+                temperature: 0.8
+            }
+        });
+        const jsonString = response.text.trim();
+        const questions = JSON.parse(jsonString);
+        return questions as TestQuestion[];
+    } catch (error) {
+        console.error("Failed to generate dynamic test questions:", error);
+        // Fallback to mock questions if API fails
+        return TEST_QUESTIONS.slice(0, count);
+    }
 };
