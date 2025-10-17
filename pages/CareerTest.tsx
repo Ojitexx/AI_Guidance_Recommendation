@@ -1,3 +1,4 @@
+/// <reference types="react" />
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { TEST_QUESTIONS } from '../constants';

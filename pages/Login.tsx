@@ -1,3 +1,4 @@
+/// <reference types="react" />
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
@@ -7,20 +8,23 @@ export const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
   const registrationMessage = location.state?.message;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    const success = login(email, password);
+    setIsLoading(true);
+    const success = await login(email, password);
+    setIsLoading(false);
     if (success) {
       navigate('/');
     } else {
-      setError('Invalid email or password. (Hint: student@test.com / password123)');
+      setError('Invalid email or password.');
     }
   };
 
@@ -65,7 +69,9 @@ export const Login = () => {
               />
             </div>
             {error && <p className="text-sm text-red-500">{error}</p>}
-            <button type="submit" className="w-full text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800">Login</button>
+            <button type="submit" disabled={isLoading} className="w-full text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800 disabled:bg-primary-400">
+                {isLoading ? 'Logging in...' : 'Login'}
+            </button>
             <p className="text-sm font-light text-gray-500 dark:text-gray-400">
               Don’t have an account yet? <Link to="/register" className="font-medium text-primary-600 hover:underline dark:text-primary-500">Sign up</Link>
             </p>

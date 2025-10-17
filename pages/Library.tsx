@@ -1,3 +1,4 @@
+/// <reference types="react" />
 import React, { useState, useEffect } from 'react';
 import { searchBooks } from '../services/libraryService';
 import { Card } from '../components/Card';

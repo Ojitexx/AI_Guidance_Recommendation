@@ -1,4 +1,4 @@
-
+/// <reference types="react" />
 import React from 'react';
 import { CAREER_PATHS } from '../constants';
 import { CareerPath } from '../types';

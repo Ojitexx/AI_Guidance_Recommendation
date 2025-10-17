@@ -1,4 +1,4 @@
-
+/// <reference types="react" />
 import React from 'react';
 import { AppRouter } from './routing/AppRouter';
 import { AuthProvider } from './context/AuthContext';

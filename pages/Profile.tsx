@@ -1,3 +1,4 @@
+/// <reference types="react" />
 import React from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Card } from '../components/Card';

@@ -1,3 +1,4 @@
+/// <reference types="react" />
 import React, { useState } from 'react';
 
 const ADVISERS = ["Mr Maikudi", "Mr Alfa", "Mr Olayemi D.O", "Mr Elmamud"];

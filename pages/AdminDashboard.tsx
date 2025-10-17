@@ -1,19 +1,61 @@
-
-import React, { useMemo } from 'react';
+/// <reference types="react" />
+import React, { useMemo, useState, useEffect } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { MOCK_USERS, MOCK_TEST_RESULTS } from '../data/mockData';
 import { Card } from '../components/Card';
-import { CareerPathName } from '../types';
+import { CareerPathName, User, UserTestResult } from '../types';
 
 export const AdminDashboard = () => {
+    const [users, setUsers] = useState<User[]>([]);
+    const [testResults, setTestResults] = useState<UserTestResult[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            setIsLoading(true);
+            setError(null);
+            try {
+                const [usersRes, resultsRes] = await Promise.all([
+                    fetch('/api/users'),
+                    fetch('/api/test-results')
+                ]);
+
+                if (!usersRes.ok || !resultsRes.ok) {
+                    throw new Error('Failed to fetch data');
+                }
+
+                const usersData = await usersRes.json();
+                const resultsData = await resultsRes.json();
+                
+                setUsers(usersData);
+                setTestResults(resultsData);
+
+            } catch (err) {
+                setError(err instanceof Error ? err.message : 'An unknown error occurred');
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchData();
+    }, []);
+
     const trendData = useMemo(() => {
-        const counts = MOCK_TEST_RESULTS.reduce((acc, result) => {
+        const counts = testResults.reduce((acc, result) => {
             acc[result.recommendedCareer] = (acc[result.recommendedCareer] || 0) + 1;
             return acc;
         }, {} as Record<CareerPathName, number>);
 
         return Object.entries(counts).map(([name, count]) => ({ name, count }));
-    }, []);
+    }, [testResults]);
+
+    if (isLoading) {
+        return <div className="text-center p-8">Loading dashboard data...</div>;
+    }
+
+    if (error) {
+        return <div className="text-center p-8 text-red-500">Error: {error}</div>;
+    }
 
   return (
     <div className="space-y-8">
@@ -44,22 +86,8 @@ export const AdminDashboard = () => {
           <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
             <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
               <tr>
-                <th scope="col" className="px-6 py-3">Name</th>
-                <th scope="col" className="px-6 py-3">Email</th>
-                <th scope="col" className="px-6 py-3">Level</th>
-                <th scope="col" className="px-6 py-3">Role</th>
               </tr>
             </thead>
-            <tbody>
-              {MOCK_USERS.map(user => (
-                <tr key={user.id} className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-                  <td className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">{user.name}</td>
-                  <td className="px-6 py-4">{user.email}</td>
-                  <td className="px-6 py-4">{user.level}</td>
-                  <td className="px-6 py-4">{user.role}</td>
-                </tr>
-              ))}
-            </tbody>
           </table>
         </div>
       </Card>

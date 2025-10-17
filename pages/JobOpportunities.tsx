@@ -1,3 +1,4 @@
+/// <reference types="react" />
 import React, { useState, useEffect } from 'react';
 import { fetchJobs } from '../services/jobService';
 import { Job } from '../types';
