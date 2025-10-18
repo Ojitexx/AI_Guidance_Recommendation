@@ -8,15 +8,15 @@ const jobSchema = {
     type: Type.OBJECT,
     properties: {
         id: { type: Type.STRING, description: "A unique identifier string for the job." },
-        title: { type: Type.STRING },
-        company: { type: Type.STRING },
-        link: { type: Type.STRING, description: "A plausible, but not necessarily real, URL to an application page."},
-        description: { type: Type.STRING },
-        posted_date_string: { type: Type.STRING, description: "A human-readable string like '3 days ago' or '1 week ago'."},
-        location: { type: Type.STRING, description: "Should always include 'Remote'."},
+        title: { type: Type.STRING, description: "A realistic job title." },
+        company: { type: Type.STRING, description: "A generic company descriptor like 'Various Tech Companies' or 'Leading Financial Firms'." },
+        searchUrl: { type: Type.STRING, description: "A well-formed, URL-encoded search link to a major job board (like LinkedIn or Google Jobs) for this specific job title and location. E.g., https://www.linkedin.com/jobs/search/?keywords=Junior%20DevOps%20Engineer%20remote"},
+        description: { type: Type.STRING, description: "A brief, 2-3 sentence summary of the role's responsibilities." },
+        location: { type: Type.STRING, description: "The job location, which should always be 'Remote'."},
     },
-    required: ["id", "title", "company", "link", "description", "posted_date_string", "location"],
+    required: ["id", "title", "company", "searchUrl", "description", "location"],
 };
+
 
 const responseSchema = {
     type: Type.ARRAY,
@@ -42,12 +42,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
 
         const prompt = `
-            Generate a list of 8 realistic, currently available remote job opportunities for a computer science student based on the query: "${query}".
-            Ensure all jobs are remote.
-            For the 'link' property, create a plausible URL to a careers page or job board.
-            For the 'id', create a unique string.
-            Return the response in the specified JSON format.
+            You are a helpful job search assistant for computer science students.
+            Based on the following search query, generate a list of 5 representative remote job opportunities: "${query}".
+
+            For each opportunity:
+            1.  Create a realistic and specific job title.
+            2.  Provide a generic company description (e.g., "A Fast-Growing SaaS Company").
+            3.  Write a brief, 2-3 sentence summary of what the role entails.
+            4.  The location must be "Remote".
+            5.  Most importantly, create a URL-encoded search link for a major job platform like LinkedIn Jobs (preferred) or Google Jobs to find live jobs matching that specific title. The link should search for the title and include the keyword "remote".
+
+            Example searchUrl for "Junior DevOps Engineer": https://www.linkedin.com/jobs/search/?keywords=Junior%20DevOps%20Engineer%20remote
+
+            Return the response ONLY in the specified JSON format.
         `;
+
 
         const response = await ai.models.generateContent({
             model: "gemini-2.5-flash",

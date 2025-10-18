@@ -36,9 +36,8 @@ export interface Job {
   id: string;
   title: string;
   company: string;
-  link: string;
+  searchUrl: string;
   description: string;
-  posted_date_string: string;
   location: string;
 }
 
