@@ -64,19 +64,40 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         });
         
         const jsonString = response.text.trim();
-        const aiGeneratedJobs = JSON.parse(jsonString) as any[];
+
+        if (!jsonString) {
+            console.warn('Gemini API returned an empty response for jobs query:', query);
+            return res.status(500).json({ error: 'The AI service returned an empty response. This can happen with very specific or unusual queries. Please try a different search term.' });
+        }
+        
+        let aiGeneratedJobs;
+        try {
+            aiGeneratedJobs = JSON.parse(jsonString);
+        } catch (parseError) {
+            console.error('Failed to parse Gemini JSON response for jobs. Response was:', jsonString);
+            return res.status(500).json({ error: 'The AI service returned data in an unexpected format. We are working on a fix.' });
+        }
+        
+        if (!Array.isArray(aiGeneratedJobs)) {
+            console.error('Gemini response for jobs was not an array. Response was:', JSON.stringify(aiGeneratedJobs));
+            return res.status(500).json({ error: 'The AI service returned data in an unexpected format. We are working on a fix.' });
+        }
 
         // Process the AI's creative output to add structured data like IDs and URLs.
         const jobsWithUrls = aiGeneratedJobs.map((job: any, index: number) => {
-            const encodedQuery = encodeURIComponent(job.searchQuery);
-            const fiverrQuery = encodeURIComponent(job.title);
+            // Basic validation to prevent crashes if a field is missing
+            const safeSearchQuery = job.searchQuery || job.title || 'tech job';
+            const safeTitle = job.title || 'Untitled Job';
+
+            const encodedQuery = encodeURIComponent(safeSearchQuery);
+            const fiverrQuery = encodeURIComponent(safeTitle);
 
             return {
-                id: `${job.title.replace(/\s/g, '-')}-${index}-${Date.now()}`, // Generate a reliable, unique ID
-                title: job.title,
-                company: job.company,
-                description: job.description,
-                location: job.location,
+                id: `${safeTitle.replace(/\s/g, '-')}-${index}-${Date.now()}`, // Generate a reliable, unique ID
+                title: safeTitle,
+                company: job.company || 'Unknown Company',
+                description: job.description || 'No description available.',
+                location: job.location || 'Remote',
                 linkedInUrl: `https://www.linkedin.com/jobs/search/?keywords=${encodedQuery}`,
                 upworkUrl: `https://www.upwork.com/nx/jobs/search/?q=${encodedQuery}`,
                 fiverrUrl: `https://www.fiverr.com/search/gigs?query=${fiverrQuery}`
@@ -87,6 +108,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     } catch (error) {
         console.error('Error in /api/jobs:', error);
-        return res.status(500).json({ error: 'Failed to generate job listings.' });
+        if (error instanceof Error && error.message.includes('SAFETY')) {
+             return res.status(422).json({ error: 'The request was blocked for safety reasons. Please try a different search query.' });
+        }
+        return res.status(500).json({ error: 'An unexpected error occurred while generating job listings. Please try again.' });
     }
 }
