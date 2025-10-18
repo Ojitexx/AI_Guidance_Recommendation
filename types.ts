@@ -36,9 +36,11 @@ export interface Job {
   id: string;
   title: string;
   company: string;
-  searchUrl: string;
   description: string;
   location: string;
+  linkedInUrl: string;
+  upworkUrl: string;
+  fiverrUrl: string;
 }
 
 export interface CareerPath {

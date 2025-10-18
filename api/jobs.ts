@@ -10,11 +10,13 @@ const jobSchema = {
         id: { type: Type.STRING, description: "A unique identifier string for the job." },
         title: { type: Type.STRING, description: "A realistic job title." },
         company: { type: Type.STRING, description: "A generic company descriptor like 'Various Tech Companies' or 'Leading Financial Firms'." },
-        searchUrl: { type: Type.STRING, description: "A well-formed, URL-encoded search link to a major job board (like LinkedIn or Google Jobs) for this specific job title and location. E.g., https://www.linkedin.com/jobs/search/?keywords=Junior%20DevOps%20Engineer%20remote"},
         description: { type: Type.STRING, description: "A brief, 2-3 sentence summary of the role's responsibilities." },
         location: { type: Type.STRING, description: "The job location, which should always be 'Remote'."},
+        linkedInUrl: { type: Type.STRING, description: "A URL-encoded LinkedIn search link for this title. e.g., https://www.linkedin.com/jobs/search/?keywords=Junior%20DevOps%20Engineer%20remote"},
+        upworkUrl: { type: Type.STRING, description: "A URL-encoded Upwork search link for this title. e.g., https://www.upwork.com/nx/jobs/search/?q=Junior%20DevOps%20Engineer" },
+        fiverrUrl: { type: Type.STRING, description: "A URL-encoded Fiverr search link for this title. e.g., https://www.fiverr.com/search/gigs?query=DevOps%20Engineer" },
     },
-    required: ["id", "title", "company", "searchUrl", "description", "location"],
+    required: ["id", "title", "company", "description", "location", "linkedInUrl", "upworkUrl", "fiverrUrl"],
 };
 
 
@@ -50,9 +52,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             2.  Provide a generic company description (e.g., "A Fast-Growing SaaS Company").
             3.  Write a brief, 2-3 sentence summary of what the role entails.
             4.  The location must be "Remote".
-            5.  Most importantly, create a URL-encoded search link for a major job platform like LinkedIn Jobs (preferred) or Google Jobs to find live jobs matching that specific title. The link should search for the title and include the keyword "remote".
-
-            Example searchUrl for "Junior DevOps Engineer": https://www.linkedin.com/jobs/search/?keywords=Junior%20DevOps%20Engineer%20remote
+            5.  Generate three distinct, URL-encoded search links for the job title:
+                - linkedInUrl: A LinkedIn Jobs search link for the title including "remote". Example for "Junior DevOps Engineer": https://www.linkedin.com/jobs/search/?keywords=Junior%20DevOps%20Engineer%20remote
+                - upworkUrl: An Upwork Jobs search link for the title. Example for "Junior DevOps Engineer": https://www.upwork.com/nx/jobs/search/?q=Junior%20DevOps%20Engineer
+                - fiverrUrl: A Fiverr Gigs search link for the title. Example for "DevOps Engineer": https://www.fiverr.com/search/gigs?query=DevOps%20Engineer
 
             Return the response ONLY in the specified JSON format.
         `;
