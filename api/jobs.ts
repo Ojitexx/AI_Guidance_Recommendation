@@ -12,9 +12,10 @@ const jobSchema = {
         company: { type: Type.STRING, description: "A generic company descriptor like 'Various Tech Companies' or 'Leading Financial Firms'." },
         description: { type: Type.STRING, description: "A brief, 2-3 sentence summary of the role's responsibilities." },
         location: { type: Type.STRING, description: "The job location, which should always be 'Remote'."},
+        postedDate: { type: Type.STRING, description: "A realistic relative date like 'Posted 2 days ago' or 'Posted 1 week ago'." },
         searchQuery: { type: Type.STRING, description: "A concise search query string for this job title, including 'remote'. e.g., 'Junior DevOps Engineer remote'." }
     },
-    required: ["title", "company", "description", "location", "searchQuery"],
+    required: ["title", "company", "description", "location", "postedDate", "searchQuery"],
 };
 
 const responseSchema = {
@@ -48,6 +49,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             - A generic company (e.g., "Tech Startup" or "Global E-commerce Platform").
             - A brief 2-sentence description of the role.
             - The location must be "Remote".
+            - A realistic relative date for when it was posted (e.g., "Posted 5 days ago").
             - A simple and effective 'searchQuery' string for finding this job (e.g., "remote entry level data analyst").
 
             Return the response in the specified JSON format.
@@ -63,11 +65,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             }
         });
         
-        const jsonString = response.text.trim();
+        let jsonString = response.text.trim();
 
         if (!jsonString) {
             console.warn('Gemini API returned an empty response for jobs query:', query);
             return res.status(500).json({ error: 'The AI service returned an empty response. This can happen with very specific or unusual queries. Please try a different search term.' });
+        }
+
+        // Clean the response string to remove markdown code blocks which can be added by the model
+        const jsonMatch = jsonString.match(/```json\s*([\s\S]*?)\s*```/);
+        if (jsonMatch && jsonMatch[1]) {
+            jsonString = jsonMatch[1];
         }
         
         let aiGeneratedJobs;
@@ -98,6 +106,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 company: job.company || 'Unknown Company',
                 description: job.description || 'No description available.',
                 location: job.location || 'Remote',
+                postedDate: job.postedDate || 'Posted recently',
                 linkedInUrl: `https://www.linkedin.com/jobs/search/?keywords=${encodedQuery}`,
                 upworkUrl: `https://www.upwork.com/nx/jobs/search/?q=${encodedQuery}`,
                 fiverrUrl: `https://www.fiverr.com/search/gigs?query=${fiverrQuery}`

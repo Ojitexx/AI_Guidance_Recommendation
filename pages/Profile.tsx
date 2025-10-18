@@ -22,7 +22,7 @@ const TestHistoryItem: React.FC<{ result: UserTestResult }> = ({ result }) => (
 
 export const Profile = () => {
     const { currentUser, testResults } = useAuth();
-    const userResults = testResults; // No longer need to filter here
+    const userResults = testResults.filter(r => r.userId === currentUser?.id);
 
     if (!currentUser) {
         return <p>Loading profile...</p>;

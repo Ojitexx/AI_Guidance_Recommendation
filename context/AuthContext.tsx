@@ -9,7 +9,7 @@ interface AuthContextType {
   register: (user: Omit<User, 'id' | 'role'>) => Promise<{ success: boolean; message: string }>;
   testResults: UserTestResult[];
   saveTestResult: (result: TestResult) => Promise<void>;
-  fetchTestResults: (user: User) => Promise<void>;
+  fetchTestResults: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -76,20 +76,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       return { success: false, message: 'An unexpected error occurred.' };
     }
   };
-  
-  const fetchTestResults = async (user: User) => {
-    if (!user) return;
-    try {
-      // Only fetch results for the specific user
-      const response = await fetch(`/api/test-results?userId=${user.id}`);
-      if(response.ok) {
-        const results = await response.json();
-        setTestResults(results);
-      }
-    } catch (error) {
-      console.error('Failed to fetch test results:', error);
-    }
-  };
 
   const saveTestResult = async (result: TestResult) => {
     if (currentUser) {
@@ -104,18 +90,29 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 fullResult: result, // Send the full result object
             }),
         });
-        await fetchTestResults(currentUser); // Refresh results for the current user
+        await fetchTestResults(); // Refresh results
       } catch (error) {
         console.error('Failed to save test result:', error);
       }
     }
   };
 
+  const fetchTestResults = async () => {
+    try {
+      const response = await fetch('/api/test-results');
+      if(response.ok) {
+        const results = await response.json();
+        setTestResults(results);
+      }
+    } catch (error) {
+      console.error('Failed to fetch test results:', error);
+    }
+  };
 
   // Fetch test results when a user is logged in
   useEffect(() => {
     if(currentUser) {
-        fetchTestResults(currentUser);
+        fetchTestResults();
     } else {
         setTestResults([]); // Clear results on logout
     }

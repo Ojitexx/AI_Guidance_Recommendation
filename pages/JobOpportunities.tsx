@@ -4,21 +4,9 @@ import { fetchJobs } from '../services/jobService';
 import { Job } from '../types';
 import { Card } from '../components/Card';
 
-const LinkedInIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
-        <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" />
-    </svg>
-);
-
-const UpworkIcon = () => (
-     <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
-        <path d="M16.14.03a8.08 8.08 0 0 0-4.07 1.15 8.35 8.35 0 0 0-2.85 2.89 8.2 8.2 0 0 0-.82 5.23c0 1.9.52 3.81 1.58 5.31s2.5 2.66 4.16 3.1a7.63 7.63 0 0 0 4.79-.58 7.67 7.67 0 0 0 3.32-3.83 8.32 8.32 0 0 0 .1-5.11 7.73 7.73 0 0 0-2.43-4.22 8.08 8.08 0 0 0-4.6-1.89zm.73 1.5c1.44 0 2.87.51 3.94 1.5a6.2 6.2 0 0 1 2 3.42 6.77 6.77 0 0 1-.1 4.14 6.13 6.13 0 0 1-2.67 3.09 6.21 6.21 0 0 1-3.89.47 6.2 6.2 0 0 1-3.39-1.25 6.09 6.09 0 0 1-2.06-3.03.54.54 0 0 1 .49-.72h1.48a.54.54 0 0 1 .53.47 3.69 3.69 0 0 0 1.25 1.84 3.8 3.8 0 0 0 2.11.72c1.07 0 2.14-.38 2.9-.91a2.83 2.83 0 0 0 1.4-2.22c.1-.81-.12-1.63-.51-2.31a3.2 3.2 0 0 0-2.83-1.68h-2.1a.54.54 0 0 1-.54-.54v-1.48a.54.54 0 0 1 .54-.54h1.9c1.61 0 3.23.63 4.38 1.79a.54.54 0 0 1-.04.79l-1.07.96a.54.54 0 0 1-.7-.11 3.84 3.84 0 0 0-2.83-1.35h-1.9a.54.54 0 0 1-.54-.54V4.18a.54.54 0 0 1 .54-.54h2.1a3.67 3.67 0 0 1 2.62 1.1 3.75 3.75 0 0 1 1.08 2.66.54.54 0 0 1-.53.54h-1.48a.54.54 0 0 1-.54-.54A1.21 1.21 0 0 0 16.87 6a1.13 1.13 0 0 0-1.13-1.13h-2.1a.54.54 0 0 1-.54-.54V2.8a.54.54 0 0 1 .54-.54h1.9z" />
-    </svg>
-);
-
-const FiverrIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
-        <path d="M21.12,6.88a1,1,0,0,0-1-1H16V3a1,1,0,0,0-1-1H3A1,1,0,0,0,2,3V15a1,1,0,0,0,1,1H8.62a1,1,0,0,0,1-1V14h1.88a1,1,0,0,0,0-2H9.62V9h4.22l-.16.32a1,1,0,0,0,.16,1.26l.4.4a1,1,0,0,0,1.42,0,1,1,0,0,0,0-1.42L15.38,9h4.62a1,1,0,0,0,1-1V7h.12A1,1,0,0,0,21.12,6.88ZM4,14V4H14V5.88H9.62a1,1,0,0,0,0,2H14v1H9.62a1,1,0,0,0,0,2H14v1H9.62a1,1,0,0,0-1,1Z" />
+const CalendarIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
     </svg>
 );
 
@@ -31,58 +19,50 @@ const JobCard: React.FC<{ job: Job }> = ({ job }) => (
         <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 my-3 flex-wrap">
             <svg className="w-4 h-4 mr-1.5" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" /></svg>
             <span>{job.location}</span>
+            {job.postedDate && (
+                <>
+                    <span className="mx-2 text-gray-300 dark:text-gray-600">|</span>
+                    <CalendarIcon />
+                    <span>{job.postedDate}</span>
+                </>
+            )}
         </div>
         <p className="text-gray-600 dark:text-gray-300 mb-6 line-clamp-3">{job.description}</p>
     </div>
     
-    <div className="grid grid-cols-1 gap-3 mt-auto">
+    <div className="mt-auto">
         <a 
             href={job.linkedInUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center justify-center text-center bg-blue-600 text-white font-bold py-2 px-4 rounded-md hover:bg-blue-700 transition-colors text-sm"
+            className="block w-full text-center bg-primary-600 text-white font-bold py-2 px-4 rounded-md hover:bg-primary-700 transition-colors"
         >
-          <LinkedInIcon />
-          View & Apply on LinkedIn
-        </a>
-        <a 
-            href={job.upworkUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center justify-center text-center bg-green-600 text-white font-bold py-2 px-4 rounded-md hover:bg-green-700 transition-colors text-sm"
-        >
-          <UpworkIcon />
-          Find Projects on Upwork
-        </a>
-        <a 
-            href={job.fiverrUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center justify-center text-center bg-gray-800 text-white font-bold py-2 px-4 rounded-md hover:bg-gray-900 transition-colors dark:bg-gray-600 dark:hover:bg-gray-500 text-sm"
-        >
-          <FiverrIcon />
-          Find Gigs on Fiverr
+          Apply Now
         </a>
     </div>
   </Card>
 );
 
 const JobCardSkeleton: React.FC = () => (
-    <div className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md animate-pulse">
+    <Card className="p-6 h-full flex flex-col animate-pulse">
+      <div className="flex-grow">
         <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-2"></div>
         <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2 mb-4"></div>
-        <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/4 mb-4"></div>
-        <div className="space-y-2">
+        <div className="flex items-center space-x-4 mb-4">
+            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/4"></div>
+            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/3"></div>
+        </div>
+        <div className="space-y-2 mb-6">
             <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded"></div>
             <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-5/6"></div>
         </div>
-        <div className="space-y-3 mt-6">
-            <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded"></div>
-            <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded"></div>
-            <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded"></div>
-        </div>
-    </div>
+      </div>
+      <div className="mt-auto">
+          <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded"></div>
+      </div>
+    </Card>
 );
+
 
 const FeaturedJobsCategory: React.FC<{ categoryName: string; searchQuery: string }> = ({ categoryName, searchQuery }) => {
     const [jobs, setJobs] = React.useState<Job[]>([]);
