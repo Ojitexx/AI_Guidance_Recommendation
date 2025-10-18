@@ -1,19 +1,18 @@
-// FIX: Re-added React types reference directive to resolve JSX intrinsic elements errors.
-/// <reference types="react" />
-import React, { useState } from 'react';
+// Fix: Changed React import from namespace import to default import to fix JSX type errors.
+import React from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 import { Card } from '../components/Card';
 
 export const Register = () => {
-    const [name, setName] = useState('');
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
-    const [department, setDepartment] = useState('Computer Science');
-    const [level, setLevel] = useState('ND I');
-    const [error, setError] = useState('');
-    const [isLoading, setIsLoading] = useState(false);
+    const [name, setName] = React.useState('');
+    const [email, setEmail] = React.useState('');
+    const [password, setPassword] = React.useState('');
+    const [confirmPassword, setConfirmPassword] = React.useState('');
+    const [department, setDepartment] = React.useState('Computer Science');
+    const [level, setLevel] = React.useState('ND I');
+    const [error, setError] = React.useState('');
+    const [isLoading, setIsLoading] = React.useState(false);
     const { register } = useAuth();
     const navigate = useNavigate();
     

@@ -1,6 +1,5 @@
-// FIX: Added React types reference directive to resolve JSX intrinsic elements errors.
-/// <reference types="react" />
-import React, { useState, useEffect } from 'react';
+// Fix: Changed React import from namespace import to default import to fix JSX type errors.
+import React from 'react';
 import { fetchJobs } from '../services/jobService';
 import { Job } from '../types';
 import { Card } from '../components/Card';
@@ -33,10 +32,10 @@ const JobCard: React.FC<{ job: Job }> = ({ job }) => (
 );
 
 export const JobOpportunities = () => {
-  const [jobs, setJobs] = useState<Job[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [searchTerm, setSearchTerm] = useState('remote computer science entry level');
+  const [jobs, setJobs] = React.useState<Job[]>([]);
+  const [isLoading, setIsLoading] = React.useState(true);
+  const [error, setError] = React.useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = React.useState('remote computer science entry level');
 
   const handleSearch = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
@@ -56,7 +55,7 @@ export const JobOpportunities = () => {
     }
   };
 
-  useEffect(() => {
+  React.useEffect(() => {
     handleSearch();
   }, []);
 

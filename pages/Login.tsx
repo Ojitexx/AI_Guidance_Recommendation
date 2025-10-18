@@ -1,15 +1,14 @@
-// FIX: Re-added React types reference directive to resolve JSX intrinsic elements errors.
-/// <reference types="react" />
-import React, { useState } from 'react';
+// Fix: Changed React import from namespace import to default import to fix JSX type errors.
+import React from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { Card } from '../components/Card';
 
 export const Login = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [email, setEmail] = React.useState('');
+  const [password, setPassword] = React.useState('');
+  const [error, setError] = React.useState('');
+  const [isLoading, setIsLoading] = React.useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();

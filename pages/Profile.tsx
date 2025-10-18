@@ -1,5 +1,4 @@
-// FIX: Re-added React types reference directive to resolve JSX intrinsic elements errors.
-/// <reference types="react" />
+// Fix: Changed React import from namespace import to default import to fix JSX type errors.
 import React from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Card } from '../components/Card';
@@ -18,7 +17,6 @@ const TestHistoryItem: React.FC<{ result: UserTestResult }> = ({ result }) => (
             <p className="font-bold text-primary-600 dark:text-primary-400">{result.recommendedCareer}</p>
             <p className="text-sm text-gray-500 dark:text-gray-400">Taken on: {new Date(result.dateTaken).toLocaleDateString()}</p>
         </div>
-        <button className="text-sm font-medium text-primary-600 hover:underline dark:text-primary-500">View Details</button>
     </li>
 );
 

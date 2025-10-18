@@ -1,5 +1,4 @@
-// FIX: Re-added React types reference directive to resolve JSX intrinsic elements errors.
-/// <reference types="react" />
+// Fix: Changed React import from namespace import to default import to fix JSX type errors.
 import React from 'react';
 import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Home } from '../pages/Home';

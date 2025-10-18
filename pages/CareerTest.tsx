@@ -1,21 +1,20 @@
-// FIX: Added React types reference directive to resolve JSX intrinsic elements errors.
-/// <reference types="react" />
-import React, { useState, useEffect } from 'react';
+// Fix: Changed React import from namespace import to default import to fix JSX type errors.
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { TestQuestion } from '../types';
 import { getCareerRecommendation, generateTestQuestions } from '../services/geminiService';
 
 export const CareerTest: React.FC = () => {
-  const [questions, setQuestions] = useState<TestQuestion[]>([]);
-  const [isLoadingQuestions, setIsLoadingQuestions] = useState(true);
-  const [questionError, setQuestionError] = useState<string | null>(null);
+  const [questions, setQuestions] = React.useState<TestQuestion[]>([]);
+  const [isLoadingQuestions, setIsLoadingQuestions] = React.useState(true);
+  const [questionError, setQuestionError] = React.useState<string | null>(null);
   
-  const [answers, setAnswers] = useState<{ [key: string]: string }>({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [answers, setAnswers] = React.useState<{ [key: string]: string }>({});
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [submitError, setSubmitError] = React.useState<string | null>(null);
   const navigate = useNavigate();
 
-  useEffect(() => {
+  React.useEffect(() => {
     const fetchQuestions = async () => {
         try {
             setQuestionError(null);

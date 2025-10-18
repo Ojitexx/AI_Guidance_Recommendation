@@ -1,5 +1,8 @@
 import { sql } from '@vercel/postgres';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+import bcrypt from 'bcrypt';
+
+const BCRYPT_PREFIX = '$2b$';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (req.method !== 'POST') {
@@ -25,10 +28,24 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
 
         const user = rows[0];
+        let passwordMatch = false;
 
-        // IMPORTANT: In a production app, compare hashed passwords here
-        const passwordMatch = user.password === password;
-
+        // Check if the stored password is a bcrypt hash
+        if (user.password.startsWith(BCRYPT_PREFIX)) {
+            // Compare hashed password
+            passwordMatch = await bcrypt.compare(password, user.password);
+        } else {
+            // This is a legacy plaintext password
+            passwordMatch = user.password === password;
+            if (passwordMatch) {
+                // If it matches, hash it and update the DB for future logins
+                console.log(`Upgrading password for user: ${user.email}`);
+                const salt = await bcrypt.genSalt(10);
+                const hashedPassword = await bcrypt.hash(password, salt);
+                await sql`UPDATE users SET password = ${hashedPassword} WHERE id = ${user.id};`;
+            }
+        }
+        
         if (!passwordMatch) {
             return res.status(401).json({ error: 'Invalid credentials' });
         }

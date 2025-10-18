@@ -6,6 +6,12 @@ export interface User {
   department: string;
   level: string;
   role: 'student' | 'admin';
+  followUpStatus?: 'none' | 'pending' | 'contacted';
+}
+
+export interface Adviser {
+  name: string;
+  field: string;
 }
 
 export enum CareerPathName {
@@ -65,6 +71,8 @@ export interface TestResult {
 export interface UserTestResult {
   id: number;
   userId: number;
+  userName?: string;
   recommendedCareer: CareerPathName;
   dateTaken: string;
+  fullResult: TestResult;
 }

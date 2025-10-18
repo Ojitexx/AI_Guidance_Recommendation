@@ -1,5 +1,6 @@
 import { sql } from '@vercel/postgres';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+import bcrypt from 'bcrypt';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (req.method !== 'POST') {
@@ -21,12 +22,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             return res.status(409).json({ error: 'An account with this email already exists.' });
         }
 
-        // IMPORTANT: In a production app, hash the password here before saving
-        // e.g., using a library like bcrypt
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
 
         const { rows } = await sql`
             INSERT INTO users (name, email, password, department, level, role)
-            VALUES (${name}, ${email.toLowerCase()}, ${password}, ${department}, ${level}, 'student')
+            VALUES (${name}, ${email.toLowerCase()}, ${hashedPassword}, ${department}, ${level}, 'student')
             RETURNING id, name, email, department, level, role;
         `;
 

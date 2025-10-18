@@ -9,8 +9,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     try {
         const { rows: users } = await sql`
-            SELECT id, name, email, department, level, role 
+            SELECT id, name, email, department, level, role, follow_up_status AS "followUpStatus"
             FROM users 
+            WHERE role = 'student'
             ORDER BY created_at DESC;
         `;
         return res.status(200).json(users);

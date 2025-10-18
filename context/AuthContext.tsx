@@ -87,6 +87,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 userId: currentUser.id,
                 recommendedCareer: result.recommendedCareer,
                 dateTaken: new Date().toISOString().split('T')[0], // YYYY-MM-DD
+                fullResult: result, // Send the full result object
             }),
         });
         await fetchTestResults(); // Refresh results

@@ -1,6 +1,5 @@
-// FIX: Re-added React types reference directive to resolve JSX intrinsic elements errors.
-/// <reference types="react" />
-import React, { useState, useEffect } from 'react';
+// Fix: Changed React import from namespace import to default import to fix JSX type errors.
+import React from 'react';
 import { searchBooks } from '../services/libraryService';
 import { Card } from '../components/Card';
 import { Book as BookType, CareerPathName } from '../types';
@@ -30,16 +29,16 @@ const BookCard: React.FC<{ book: BookType }> = ({ book }) => (
 );
 
 export const Library = () => {
-  const [books, setBooks] = useState<BookType[]>([]);
-  const [searchTerm, setSearchTerm] = useState('Computer Science');
-  const [selectedCategory, setSelectedCategory] = useState<CareerPathName | 'All'>('All');
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [books, setBooks] = React.useState<BookType[]>([]);
+  const [searchTerm, setSearchTerm] = React.useState('Computer Science');
+  const [selectedCategory, setSelectedCategory] = React.useState<CareerPathName | 'All'>('All');
+  const [isLoading, setIsLoading] = React.useState(true);
+  const [error, setError] = React.useState<string | null>(null);
 
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
   const categories = ['All', ...Object.values(CareerPathName)];
 
-  useEffect(() => {
+  React.useEffect(() => {
     const fetchBooks = async () => {
       setIsLoading(true);
       setError(null);

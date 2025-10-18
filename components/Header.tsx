@@ -1,6 +1,5 @@
-// FIX: Re-added React types reference directive to resolve JSX intrinsic elements errors.
-/// <reference types="react" />
-import React, { useState, useEffect, useRef } from 'react';
+// Fix: Changed React import from namespace import to default import to fix JSX type errors.
+import React from 'react';
 import { NavLink, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useDarkMode } from '../hooks/useDarkMode';
@@ -26,16 +25,16 @@ const NavItem: React.FC<{ to: string; children: React.ReactNode; onClick?: () =>
 export const Header = () => {
     const { currentUser, logout } = useAuth();
     const [theme, toggleTheme] = useDarkMode();
-    const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const [isProfileOpen, setIsProfileOpen] = useState(false);
-    const profileRef = useRef<HTMLDivElement>(null);
+    const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+    const [isProfileOpen, setIsProfileOpen] = React.useState(false);
+    const profileRef = React.useRef<HTMLDivElement>(null);
     const location = useLocation();
 
-    useEffect(() => {
+    React.useEffect(() => {
         setIsMenuOpen(false);
     }, [location]);
 
-    useEffect(() => {
+    React.useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (profileRef.current && !profileRef.current.contains(event.target as Node)) {
                 setIsProfileOpen(false);

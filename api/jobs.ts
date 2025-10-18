@@ -1,11 +1,8 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
-if (!process.env.API_KEY) {
-  throw new Error("API_KEY environment variable not set.");
-}
-
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+// Initialize AI client, can be null if API_KEY is not set
+const ai = process.env.API_KEY ? new GoogleGenAI({ apiKey: process.env.API_KEY }) : null;
 
 const jobSchema = {
     type: Type.OBJECT,
@@ -30,6 +27,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (req.method !== 'POST') {
         res.setHeader('Allow', ['POST']);
         return res.status(405).json({ error: 'Method Not Allowed' });
+    }
+    
+    // Handle case where API key is not configured
+    if (!ai) {
+        console.error("API key not configured. Returning empty job list.");
+        return res.status(200).json([]);
     }
 
     try {

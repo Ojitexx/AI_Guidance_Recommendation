@@ -1,4 +1,11 @@
-import { CareerPath, CareerPathName, TestQuestion } from './types';
+import { CareerPath, CareerPathName, TestQuestion, Adviser } from './types';
+
+export const ADVISERS: Adviser[] = [
+  { name: "Mr Maikudi", field: "Software Engineering & Web Development" },
+  { name: "Mr Alfa", field: "Cybersecurity & Networking" },
+  { name: "Mr Olayemi D.O", field: "AI & Data Science" },
+  { name: "Mr Elmamud", field: "Cloud Computing & DevOps" }
+];
 
 export const CAREER_PATHS: CareerPath[] = [
   {

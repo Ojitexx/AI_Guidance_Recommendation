@@ -1,5 +1,4 @@
-// FIX: Re-added React types reference directive to resolve JSX intrinsic elements errors.
-/// <reference types="react" />
+// Fix: Changed React import from namespace import to default import to fix JSX type errors.
 import React from 'react';
 import { Card } from '../components/Card';
 

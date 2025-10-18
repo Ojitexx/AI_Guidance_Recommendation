@@ -1,6 +1,5 @@
-// FIX: Re-added React types reference directive to resolve JSX intrinsic elements errors.
-/// <reference types="react" />
-import React, { useEffect } from 'react';
+// Fix: Changed React import from namespace import to default import to fix JSX type errors.
+import React from 'react';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { TestResult } from '../types';
 import { Card } from '../components/Card';
@@ -12,13 +11,81 @@ const InfoPill: React.FC<{ children: React.ReactNode }> = ({ children }) => (
     </span>
 );
 
+const CareerAI_QA: React.FC<{ careerContext: string }> = ({ careerContext }) => {
+    const [question, setQuestion] = React.useState('');
+    const [response, setResponse] = React.useState('');
+    const [isLoading, setIsLoading] = React.useState(false);
+    const [error, setError] = React.useState('');
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!question.trim()) return;
+
+        setIsLoading(true);
+        setError('');
+        setResponse('');
+
+        try {
+            const res = await fetch('/api/career-qa', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ question, careerContext })
+            });
+
+            if (!res.ok) {
+                throw new Error("Failed to get a response from the AI. Please try again.");
+            }
+            const data = await res.json();
+            setResponse(data.response);
+
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'An unknown error occurred.');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    return (
+        <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
+            <h3 className="text-xl font-bold mb-3">Ask a Follow-up Question</h3>
+            <p className="text-gray-600 dark:text-gray-400 mb-4">
+                Have more questions about a career in {careerContext}? Ask our AI for more details.
+            </p>
+            <form onSubmit={handleSubmit} className="space-y-4">
+                <textarea
+                    value={question}
+                    onChange={(e) => setQuestion(e.target.value)}
+                    placeholder={`e.g., "What does a typical day look like?" or "What are some good online courses?"`}
+                    className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700 focus:ring-primary-500 focus:border-primary-500"
+                    rows={3}
+                    disabled={isLoading}
+                />
+                <button
+                    type="submit"
+                    disabled={isLoading}
+                    className="inline-flex items-center justify-center px-6 py-2 border border-transparent text-base font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 disabled:bg-primary-300"
+                >
+                    {isLoading ? 'Thinking...' : 'Ask AI'}
+                </button>
+            </form>
+            {error && <p className="mt-4 text-red-500">{error}</p>}
+            {response && (
+                <div className="mt-6 p-4 bg-gray-50 dark:bg-gray-900 rounded-md">
+                    <h4 className="font-semibold text-gray-800 dark:text-gray-200">AI Response:</h4>
+                    <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">{response}</p>
+                </div>
+            )}
+        </div>
+    );
+};
+
 export const TestResultPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { currentUser, saveTestResult } = useAuth();
   const { result, isQuickTest } = (location.state as { result: TestResult, isQuickTest: boolean }) || {};
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (result && !isQuickTest && currentUser) {
       saveTestResult(result);
     }
@@ -91,6 +158,8 @@ export const TestResultPage = () => {
                 Explore All Career Paths
             </a>
         </div>
+
+        {!isQuickTest && currentUser && <CareerAI_QA careerContext={result.recommendedCareer} />}
       </Card>
     </div>
   );
