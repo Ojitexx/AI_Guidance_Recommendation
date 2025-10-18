@@ -4,7 +4,9 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (req.method === 'GET') {
         try {
-            const { rows } = await sql`
+            const { userId } = req.query;
+
+            const baseQuery = `
                 SELECT 
                     tr.id, 
                     tr.user_id AS "userId", 
@@ -14,8 +16,24 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                     tr.full_result AS "fullResult"
                 FROM test_results tr
                 JOIN users u ON tr.user_id = u.id
-                ORDER BY tr.created_at DESC;
             `;
+
+            let rows;
+            if (userId && typeof userId === 'string') {
+                // Fetch results for a specific user
+                const result = await sql.query(
+                    `${baseQuery} WHERE tr.user_id = $1 ORDER BY tr.created_at DESC;`,
+                    [userId]
+                );
+                rows = result.rows;
+            } else {
+                // Fetch all results for admin dashboard
+                const result = await sql.query(
+                    `${baseQuery} ORDER BY tr.created_at DESC;`
+                );
+                rows = result.rows;
+            }
+            
             return res.status(200).json(rows);
         } catch (error) {
             console.error('Error fetching test results:', error);
@@ -41,6 +59,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
     } else {
         res.setHeader('Allow', ['GET', 'POST']);
-        return res.status(455).json({ error: 'Method Not Allowed' });
+        return res.status(405).json({ error: 'Method Not Allowed' });
     }
 }
