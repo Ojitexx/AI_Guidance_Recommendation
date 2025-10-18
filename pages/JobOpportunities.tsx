@@ -64,27 +64,12 @@ const JobCardSkeleton: React.FC = () => (
 );
 
 
-const FeaturedJobsCategory: React.FC<{ categoryName: string; searchQuery: string }> = ({ categoryName, searchQuery }) => {
-    const [jobs, setJobs] = React.useState<Job[]>([]);
-    const [isLoading, setIsLoading] = React.useState(true);
-    const [error, setError] = React.useState<string | null>(null);
-
-    React.useEffect(() => {
-        const loadJobs = async () => {
-            setIsLoading(true);
-            setError(null);
-            try {
-                const results = await fetchJobs(searchQuery);
-                setJobs(results.slice(0, 3)); // Show top 3 results for featured
-            } catch (err) {
-                setError(err instanceof Error ? err.message : 'Failed to load jobs.');
-            } finally {
-                setIsLoading(false);
-            }
-        };
-        loadJobs();
-    }, [searchQuery]);
-
+const FeaturedJobsCategory: React.FC<{
+    categoryName: string;
+    jobs: Job[];
+    isLoading: boolean;
+    error: string | null;
+}> = ({ categoryName, jobs, isLoading, error }) => {
     return (
         <div>
             <h2 className="text-2xl font-bold mb-4 border-b-2 border-primary-200 dark:border-primary-800 pb-2">{categoryName}</h2>
@@ -95,7 +80,9 @@ const FeaturedJobsCategory: React.FC<{ categoryName: string; searchQuery: string
                     <JobCardSkeleton />
                 </div>
             ) : error ? (
-                <div className="text-center py-8 text-red-500 bg-red-50 dark:bg-red-900/20 rounded-lg">{error}</div>
+                <div className="text-center p-4 text-red-600 bg-red-50 dark:bg-red-900/20 rounded-lg">
+                    <p>An unexpected error occurred while generating job listings. Please try again.</p>
+                </div>
             ) : jobs.length > 0 ? (
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {jobs.map(job => <JobCard key={job.id} job={job} />)}
@@ -109,18 +96,54 @@ const FeaturedJobsCategory: React.FC<{ categoryName: string; searchQuery: string
     );
 };
 
+interface CategoryJobData {
+    jobs: Job[];
+    isLoading: boolean;
+    error: string | null;
+}
+
 export const JobOpportunities = () => {
   const [customJobs, setCustomJobs] = React.useState<Job[]>([]);
   const [isCustomLoading, setIsCustomLoading] = React.useState(false);
   const [customError, setCustomError] = React.useState<string | null>(null);
   const [searchTerm, setSearchTerm] = React.useState('');
+  const [featuredJobs, setFeaturedJobs] = React.useState<Record<string, CategoryJobData>>({});
 
-  const featuredCategories = [
+  const featuredCategories = React.useMemo(() => [
     { name: "Software Engineering", query: "remote entry level software engineer" },
     { name: "Cybersecurity", query: "remote junior cybersecurity analyst" },
     { name: "AI & Data Science", query: "remote entry level data scientist jobs" },
     { name: "Web Development", query: "remote junior frontend developer" },
-  ];
+  ], []);
+
+  React.useEffect(() => {
+    const loadAllFeaturedJobs = async () => {
+        // Set initial loading state for all categories
+        const initialLoadingState = featuredCategories.reduce((acc, cat) => {
+            acc[cat.name] = { jobs: [], isLoading: true, error: null };
+            return acc;
+        }, {} as Record<string, CategoryJobData>);
+        setFeaturedJobs(initialLoadingState);
+
+        // Fetch sequentially to avoid rate limiting
+        for (const category of featuredCategories) {
+            try {
+                const results = await fetchJobs(category.query);
+                setFeaturedJobs(prev => ({
+                    ...prev,
+                    [category.name]: { jobs: results.slice(0, 3), isLoading: false, error: null }
+                }));
+            } catch (err) {
+                const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred while generating job listings. Please try again.';
+                setFeaturedJobs(prev => ({
+                    ...prev,
+                    [category.name]: { jobs: [], isLoading: false, error: errorMessage }
+                }));
+            }
+        }
+    };
+    loadAllFeaturedJobs();
+  }, [featuredCategories]);
 
   const handleCustomSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -149,9 +172,18 @@ export const JobOpportunities = () => {
 
       <section className="space-y-12">
         <h2 className="text-3xl font-bold text-center">Featured Career Opportunities</h2>
-        {featuredCategories.map(cat => (
-          <FeaturedJobsCategory key={cat.name} categoryName={cat.name} searchQuery={cat.query} />
-        ))}
+        {featuredCategories.map(cat => {
+            const categoryData = featuredJobs[cat.name] || { isLoading: true, error: null, jobs: [] };
+            return (
+                <FeaturedJobsCategory 
+                    key={cat.name} 
+                    categoryName={cat.name} 
+                    jobs={categoryData.jobs}
+                    isLoading={categoryData.isLoading}
+                    error={categoryData.error}
+                />
+            );
+        })}
       </section>
 
       <section>
@@ -176,7 +208,7 @@ export const JobOpportunities = () => {
         </form>
         
         {!isCustomLoading && !customError && customJobs.length > 0 && (
-            <div className="mb-6 p-4 bg-blue-50 border-l-4 border-blue-500 text-blue-800 dark:bg-blue-900/30 dark:border-blue-400 dark:text-blue-200 rounded-md" role="alert">
+            <div className="mb-6 p-4 bg-blue-50 border-l-4 border-blue-500 text-blue-800 dark:bg-blue-900/30 dark:border-blue-400 dark:text-blue-200" role="alert">
                 <p className="font-bold">Please Note:</p>
                 <p className="text-sm">These are AI-generated examples. Click the buttons on each card to find live job listings and projects on LinkedIn, Upwork, and Fiverr.</p>
             </div>
