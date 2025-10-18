@@ -4,18 +4,17 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 // Initialize AI client, can be null if API_KEY is not set
 const ai = process.env.API_KEY ? new GoogleGenAI({ apiKey: process.env.API_KEY }) : null;
 
-// Simplified schema: AI only generates the core data. We construct the URLs.
+// Simplified schema: AI only generates core data, server constructs URLs and IDs.
 const jobSchema = {
     type: Type.OBJECT,
     properties: {
-        id: { type: Type.STRING, description: "A unique identifier string for the job." },
         title: { type: Type.STRING, description: "A realistic job title." },
         company: { type: Type.STRING, description: "A generic company descriptor like 'Various Tech Companies' or 'Leading Financial Firms'." },
         description: { type: Type.STRING, description: "A brief, 2-3 sentence summary of the role's responsibilities." },
         location: { type: Type.STRING, description: "The job location, which should always be 'Remote'."},
         searchQuery: { type: Type.STRING, description: "A concise search query string for this job title, including 'remote'. e.g., 'Junior DevOps Engineer remote'." }
     },
-    required: ["id", "title", "company", "description", "location", "searchQuery"],
+    required: ["title", "company", "description", "location", "searchQuery"],
 };
 
 const responseSchema = {
@@ -31,7 +30,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     
     if (!ai) {
         console.error("API key not configured. Cannot fetch jobs.");
-        // Return an error so the user knows something is wrong.
         return res.status(500).json({ error: 'AI service is not configured on the server. Please add API_KEY to environment variables.' });
     }
 
@@ -42,17 +40,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
 
         const prompt = `
-            You are a helpful job search assistant for computer science students.
-            Based on the following search query, generate a list of 5 representative remote job opportunities: "${query}".
+            You are a job search assistant for computer science students.
+            Generate a list of 5 representative remote job opportunities based on the search query: "${query}".
 
-            For each opportunity:
-            1.  Create a realistic and specific job title.
-            2.  Provide a generic company description (e.g., "A Fast-Growing SaaS Company").
-            3.  Write a brief, 2-3 sentence summary of what the role entails.
-            4.  The location must be "Remote".
-            5.  Create a simple but effective 'searchQuery' string for finding this job on job boards (e.g., "entry level data analyst remote").
+            For each job, provide:
+            - A realistic job title.
+            - A generic company (e.g., "Tech Startup" or "Global E-commerce Platform").
+            - A brief 2-sentence description of the role.
+            - The location must be "Remote".
+            - A simple and effective 'searchQuery' string for finding this job (e.g., "remote entry level data analyst").
 
-            Return the response ONLY in the specified JSON format.
+            Return the response in the specified JSON format.
         `;
 
         const response = await ai.models.generateContent({
@@ -66,17 +64,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         });
         
         const jsonString = response.text.trim();
-        // The AI returns a list of jobs with a `searchQuery` property.
         const aiGeneratedJobs = JSON.parse(jsonString) as any[];
 
-        // We now process these jobs to add the full, platform-specific URLs.
-        const jobsWithUrls = aiGeneratedJobs.map((job: any) => {
+        // Process the AI's creative output to add structured data like IDs and URLs.
+        const jobsWithUrls = aiGeneratedJobs.map((job: any, index: number) => {
             const encodedQuery = encodeURIComponent(job.searchQuery);
-            // Fiverr works better with just the title, which is more specific for gigs
             const fiverrQuery = encodeURIComponent(job.title);
 
             return {
-                id: job.id,
+                id: `${job.title.replace(/\s/g, '-')}-${index}-${Date.now()}`, // Generate a reliable, unique ID
                 title: job.title,
                 company: job.company,
                 description: job.description,
