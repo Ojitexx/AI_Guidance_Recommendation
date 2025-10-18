@@ -81,14 +81,15 @@ export const AdminDashboard = () => {
                 ]);
 
                 if (!usersRes.ok || !resultsRes.ok) {
-                    throw new Error('Failed to fetch data');
+                    throw new Error('Failed to fetch data from the server.');
                 }
 
                 const usersData = await usersRes.json();
                 const resultsData = await resultsRes.json();
                 
-                setUsers(usersData);
-                setTestResults(resultsData);
+                // Add validation to ensure we're setting arrays
+                setUsers(Array.isArray(usersData) ? usersData : []);
+                setTestResults(Array.isArray(resultsData) ? resultsData : []);
 
             } catch (err) {
                 setError(err instanceof Error ? err.message : 'An unknown error occurred');
@@ -117,6 +118,7 @@ export const AdminDashboard = () => {
     };
 
     const trendData = React.useMemo(() => {
+        if (!testResults || testResults.length === 0) return [];
         const counts = testResults.reduce((acc, result) => {
             acc[result.recommendedCareer] = (acc[result.recommendedCareer] || 0) + 1;
             return acc;
@@ -158,18 +160,25 @@ export const AdminDashboard = () => {
                 <p className="text-gray-600 dark:text-gray-400 mb-6">
                     Distribution of recommended careers from student test results.
                 </p>
-                <div style={{ width: '100%', height: 400 }}>
-                    <ResponsiveContainer>
-                        <BarChart data={trendData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-                            <CartesianGrid strokeDasharray="3 3" />
-                            <XAxis dataKey="name" angle={-20} textAnchor="end" height={80} interval={0} />
-                            <YAxis allowDecimals={false} />
-                            <Tooltip />
-                            <Legend />
-                            <Bar dataKey="count" fill="#006400" name="Number of Recommendations" />
-                        </BarChart>
-                    </ResponsiveContainer>
-                </div>
+                {trendData.length > 0 ? (
+                    <div style={{ width: '100%', height: 400 }}>
+                        <ResponsiveContainer>
+                            <BarChart data={trendData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                                <CartesianGrid strokeDasharray="3 3" />
+                                <XAxis dataKey="name" angle={-20} textAnchor="end" height={80} interval={0} />
+                                <YAxis allowDecimals={false} />
+                                <Tooltip />
+                                <Legend />
+                                <Bar dataKey="count" fill="#006400" name="Number of Recommendations" />
+                            </BarChart>
+                        </ResponsiveContainer>
+                    </div>
+                ) : (
+                    <div className="text-center py-16 text-gray-500 dark:text-gray-400">
+                        <p className="font-semibold">No data available to display trends.</p>
+                        <p className="mt-1 text-sm">The chart will appear here once students complete the career test.</p>
+                    </div>
+                )}
             </Card>
         )}
         
@@ -187,7 +196,7 @@ export const AdminDashboard = () => {
                         </tr>
                         </thead>
                         <tbody>
-                        {users.map(user => (
+                        {users.length > 0 ? users.map(user => (
                             <tr key={user.id} className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
                             <td className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">{user.name}</td>
                             <td className="px-6 py-4">{user.email}</td>
@@ -204,7 +213,13 @@ export const AdminDashboard = () => {
                                 </select>
                             </td>
                             </tr>
-                        ))}
+                        )) : (
+                            <tr>
+                                <td colSpan={4} className="text-center py-10 text-gray-500 dark:text-gray-400">
+                                    No students have registered yet.
+                                </td>
+                            </tr>
+                        )}
                         </tbody>
                     </table>
                 </div>
@@ -225,7 +240,7 @@ export const AdminDashboard = () => {
                         </tr>
                         </thead>
                         <tbody>
-                        {testResults.map(result => (
+                        {testResults.length > 0 ? testResults.map(result => (
                             <tr key={result.id} className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
                             <td className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">{result.userName}</td>
                             <td className="px-6 py-4">{result.recommendedCareer}</td>
@@ -236,7 +251,13 @@ export const AdminDashboard = () => {
                                 </button>
                             </td>
                             </tr>
-                        ))}
+                        )) : (
+                            <tr>
+                                <td colSpan={4} className="text-center py-10 text-gray-500 dark:text-gray-400">
+                                    No career tests have been completed yet.
+                                </td>
+                            </tr>
+                        )}
                         </tbody>
                     </table>
                 </div>

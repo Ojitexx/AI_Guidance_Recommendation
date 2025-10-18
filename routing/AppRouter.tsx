@@ -1,23 +1,26 @@
 // Fix: Changed React import from namespace import to default import to fix JSX type errors.
-import React from 'react';
+import React, { lazy, Suspense } from 'react';
 import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { Home } from '../pages/Home';
-import { CareerTest } from '../pages/CareerTest';
-import { QuickTest } from '../pages/QuickTest';
-import { TestResultPage } from '../pages/TestResultPage';
-import { Library } from '../pages/Library';
-import { JobOpportunities } from '../pages/JobOpportunities';
-import { CareerPaths } from '../pages/CareerPaths';
-import { About } from '../pages/About';
-import { Contact } from '../pages/Contact';
-import { Login } from '../pages/Login';
-import { Register } from '../pages/Register';
-import { Profile } from '../pages/Profile';
-import { AdminDashboard } from '../pages/AdminDashboard';
 import { Header } from '../components/Header';
 import { Footer } from '../components/Footer';
 import { Chatbot } from '../components/Chatbot';
 import { useAuth } from '../context/AuthContext';
+import { LoadingSpinner } from '../components/LoadingSpinner';
+
+// Lazy load all page components to enable code-splitting
+const Home = lazy(() => import('../pages/Home').then(module => ({ default: module.Home })));
+const CareerTest = lazy(() => import('../pages/CareerTest').then(module => ({ default: module.CareerTest })));
+const QuickTest = lazy(() => import('../pages/QuickTest').then(module => ({ default: module.QuickTest })));
+const TestResultPage = lazy(() => import('../pages/TestResultPage').then(module => ({ default: module.TestResultPage })));
+const Library = lazy(() => import('../pages/Library').then(module => ({ default: module.Library })));
+const JobOpportunities = lazy(() => import('../pages/JobOpportunities').then(module => ({ default: module.JobOpportunities })));
+const CareerPaths = lazy(() => import('../pages/CareerPaths').then(module => ({ default: module.CareerPaths })));
+const About = lazy(() => import('../pages/About').then(module => ({ default: module.About })));
+const Contact = lazy(() => import('../pages/Contact').then(module => ({ default: module.Contact })));
+const Login = lazy(() => import('../pages/Login').then(module => ({ default: module.Login })));
+const Register = lazy(() => import('../pages/Register').then(module => ({ default: module.Register })));
+const Profile = lazy(() => import('../pages/Profile').then(module => ({ default: module.Profile })));
+const AdminDashboard = lazy(() => import('../pages/AdminDashboard').then(module => ({ default: module.AdminDashboard })));
 
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -42,29 +45,31 @@ const AppLayout = () => {
     <>
       <Header />
       <main className="container mx-auto px-4 py-8 min-h-[calc(100vh-200px)]">
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/quick-test" element={<QuickTest />} />
-          <Route path="/test-result" element={<TestResultPage />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          
-          {/* Protected Routes */}
-          <Route path="/career-test" element={<ProtectedRoute><CareerTest /></ProtectedRoute>} />
-          <Route path="/library" element={<ProtectedRoute><Library /></ProtectedRoute>} />
-          <Route path="/job-opportunities" element={<ProtectedRoute><JobOpportunities /></ProtectedRoute>} />
-          <Route path="/career-paths" element={<ProtectedRoute><CareerPaths /></ProtectedRoute>} />
-          <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+        <Suspense fallback={<LoadingSpinner />}>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/quick-test" element={<QuickTest />} />
+            <Route path="/test-result" element={<TestResultPage />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            
+            {/* Protected Routes */}
+            <Route path="/career-test" element={<ProtectedRoute><CareerTest /></ProtectedRoute>} />
+            <Route path="/library" element={<ProtectedRoute><Library /></ProtectedRoute>} />
+            <Route path="/job-opportunities" element={<ProtectedRoute><JobOpportunities /></ProtectedRoute>} />
+            <Route path="/career-paths" element={<ProtectedRoute><CareerPaths /></ProtectedRoute>} />
+            <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
 
-          {/* Admin Route */}
-          <Route path="/admin" element={
-            <AdminRoute>
-              <AdminDashboard />
-            </AdminRoute>
-          } />
-        </Routes>
+            {/* Admin Route */}
+            <Route path="/admin" element={
+              <AdminRoute>
+                <AdminDashboard />
+              </AdminRoute>
+            } />
+          </Routes>
+        </Suspense>
       </main>
       <Footer />
       {currentUser && currentUser.role === 'student' && <Chatbot />}

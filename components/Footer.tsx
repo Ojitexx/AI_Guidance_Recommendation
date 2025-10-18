@@ -2,7 +2,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-export const Footer = () => {
+export const Footer = React.memo(() => {
   const currentYear = new Date().getFullYear();
 
   return (
@@ -52,4 +52,4 @@ export const Footer = () => {
       </div>
     </footer>
   );
-};
+});

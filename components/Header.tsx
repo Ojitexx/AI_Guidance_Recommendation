@@ -22,7 +22,7 @@ const NavItem: React.FC<{ to: string; children: React.ReactNode; onClick?: () =>
     </li>
 );
 
-export const Header = () => {
+export const Header = React.memo(() => {
     const { currentUser, logout } = useAuth();
     const [theme, toggleTheme] = useDarkMode();
     const [isMenuOpen, setIsMenuOpen] = React.useState(false);
@@ -105,4 +105,4 @@ export const Header = () => {
             </nav>
         </header>
     );
-};
+});
