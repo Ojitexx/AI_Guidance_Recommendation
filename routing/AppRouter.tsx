@@ -21,6 +21,8 @@ const Login = lazy(() => import('../pages/Login').then(module => ({ default: mod
 const Register = lazy(() => import('../pages/Register').then(module => ({ default: module.Register })));
 const Profile = lazy(() => import('../pages/Profile').then(module => ({ default: module.Profile })));
 const AdminDashboard = lazy(() => import('../pages/AdminDashboard').then(module => ({ default: module.AdminDashboard })));
+const ForgotPassword = lazy(() => import('../pages/ForgotPassword').then(module => ({ default: module.ForgotPassword })));
+const ResetPassword = lazy(() => import('../pages/ResetPassword').then(module => ({ default: module.ResetPassword })));
 
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -54,6 +56,8 @@ const AppLayout = () => {
             <Route path="/contact" element={<Contact />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password/:token" element={<ResetPassword />} />
             
             {/* Protected Routes */}
             <Route path="/career-test" element={<ProtectedRoute><CareerTest /></ProtectedRoute>} />

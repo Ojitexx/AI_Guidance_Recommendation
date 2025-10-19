@@ -4,41 +4,21 @@ import { fetchJobs } from '../services/jobService';
 import { Job } from '../types';
 import { Card } from '../components/Card';
 
-const CalendarIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-    </svg>
-);
-
-
 const JobCard: React.FC<{ job: Job }> = ({ job }) => (
   <Card className="p-6 h-full flex flex-col">
     <div className="flex-grow">
-        <h3 className="text-xl font-bold text-primary-600 dark:text-primary-400">{job.title}</h3>
-        <p className="text-md font-semibold text-gray-700 dark:text-gray-300">{job.company}</p>
-        <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 my-3 flex-wrap">
-            <svg className="w-4 h-4 mr-1.5" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" /></svg>
-            <span>{job.location}</span>
-            {job.postedDate && (
-                <>
-                    <span className="mx-2 text-gray-300 dark:text-gray-600">|</span>
-                    <CalendarIcon />
-                    <span>{job.postedDate}</span>
-                </>
-            )}
-        </div>
-        <p className="text-gray-600 dark:text-gray-300 mb-6 line-clamp-3">{job.description}</p>
+      <h3 className="text-xl font-bold text-primary-600 dark:text-primary-400">{job.title}</h3>
+      <p className="text-md font-semibold text-gray-700 dark:text-gray-300">{job.company}</p>
+      <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 my-3">
+        <svg className="w-4 h-4 mr-1.5" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" /></svg>
+        <span>{job.location}</span>
+      </div>
+      <p className="text-gray-600 dark:text-gray-300 mb-6 line-clamp-3">{job.description}</p>
     </div>
-    
-    <div className="mt-auto">
-        <a 
-            href={job.linkedInUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="block w-full text-center bg-primary-600 text-white font-bold py-2 px-4 rounded-md hover:bg-primary-700 transition-colors"
-        >
-          Apply Now
-        </a>
+    <div className="mt-auto grid grid-cols-3 gap-2">
+      <a href={job.linkedInUrl} target="_blank" rel="noopener noreferrer" className="text-center bg-blue-600 text-white text-sm font-bold py-2 px-2 rounded-md hover:bg-blue-700 transition-colors">LinkedIn</a>
+      <a href={job.upworkUrl} target="_blank" rel="noopener noreferrer" className="text-center bg-green-500 text-white text-sm font-bold py-2 px-2 rounded-md hover:bg-green-600 transition-colors">Upwork</a>
+      <a href={job.fiverrUrl} target="_blank" rel="noopener noreferrer" className="text-center bg-gray-700 text-white text-sm font-bold py-2 px-2 rounded-md hover:bg-gray-800 transition-colors">Fiverr</a>
     </div>
   </Card>
 );
@@ -48,17 +28,16 @@ const JobCardSkeleton: React.FC = () => (
       <div className="flex-grow">
         <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-2"></div>
         <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2 mb-4"></div>
-        <div className="flex items-center space-x-4 mb-4">
-            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/4"></div>
-            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/3"></div>
-        </div>
+        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/4 mb-4"></div>
         <div className="space-y-2 mb-6">
             <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded"></div>
             <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-5/6"></div>
         </div>
       </div>
-      <div className="mt-auto">
-          <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded"></div>
+      <div className="mt-auto grid grid-cols-3 gap-2">
+          <div className="h-9 bg-gray-200 dark:bg-gray-700 rounded"></div>
+          <div className="h-9 bg-gray-200 dark:bg-gray-700 rounded"></div>
+          <div className="h-9 bg-gray-200 dark:bg-gray-700 rounded"></div>
       </div>
     </Card>
 );

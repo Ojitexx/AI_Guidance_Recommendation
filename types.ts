@@ -41,7 +41,6 @@ export interface Job {
   linkedInUrl: string;
   upworkUrl: string;
   fiverrUrl: string;
-  postedDate?: string;
 }
 
 export interface CareerPath {

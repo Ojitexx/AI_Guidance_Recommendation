@@ -1,6 +1,6 @@
 import { sql } from '@vercel/postgres';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 
 const BCRYPT_PREFIX = '$2b$';
 
