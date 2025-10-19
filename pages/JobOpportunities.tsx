@@ -3,6 +3,7 @@ import React from 'react';
 import { fetchJobs } from '../services/jobService';
 import { Job } from '../types';
 import { Card } from '../components/Card';
+import { Alert } from '../components/Alert';
 
 const JobCard: React.FC<{ job: Job }> = ({ job }) => (
   <Card className="p-6 h-full flex flex-col">

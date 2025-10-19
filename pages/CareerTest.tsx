@@ -22,7 +22,6 @@ export const CareerTest: React.FC = () => {
             const generatedQuestions = await generateTestQuestions(10);
             setQuestions(generatedQuestions);
         } catch (err) {
-            setQuestionError("Failed to load dynamic questions. Using fallback.");
             console.error(err);
         } finally {
             setIsLoadingQuestions(false);

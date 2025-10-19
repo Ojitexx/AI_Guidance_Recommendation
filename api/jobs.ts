@@ -21,6 +21,59 @@ const responseSchema = {
     items: jobSchema
 };
 
+const mockJobs = [
+    {
+      id: 'mock-job-1',
+      title: 'Junior Frontend Developer (React)',
+      company: 'Innovate Solutions Inc.',
+      description: 'Join our team to build and maintain modern, responsive web applications using React. You will collaborate with designers and backend developers to create seamless user experiences.',
+      location: 'Remote',
+      linkedInUrl: 'https://www.linkedin.com/jobs/search/?keywords=Junior%20Frontend%20Developer',
+      upworkUrl: 'https://www.upwork.com/nx/jobs/search/?q=Junior%20Frontend%20Developer',
+      fiverrUrl: 'https://www.fiverr.com/search/gigs?query=Junior%20Frontend%20Developer'
+    },
+    {
+      id: 'mock-job-2',
+      title: 'Entry Level Software Engineer',
+      company: 'Tech Giants Co.',
+      description: 'We are looking for a recent graduate to join our software engineering team. You will work on various projects, from backend services to internal tools, using Python and Go.',
+      location: 'Remote',
+      linkedInUrl: 'https://www.linkedin.com/jobs/search/?keywords=Entry%20Level%20Software%20Engineer',
+      upworkUrl: 'https://www.upwork.com/nx/jobs/search/?q=Entry%20Level%20Software%20Engineer',
+      fiverrUrl: 'https://www.fiverr.com/search/gigs?query=Entry%20Level%20Software%20Engineer'
+    },
+    {
+      id: 'mock-job-3',
+      title: 'Cybersecurity Analyst Intern',
+      company: 'SecureNet',
+      description: 'An exciting opportunity for a student or recent graduate to gain hands-on experience in cybersecurity. You will assist in monitoring security alerts, performing vulnerability assessments, and responding to incidents.',
+      location: 'Remote',
+      linkedInUrl: 'https://www.linkedin.com/jobs/search/?keywords=Cybersecurity%20Analyst%20Intern',
+      upworkUrl: 'https://www.upwork.com/nx/jobs/search/?q=Cybersecurity%20Analyst%20Intern',
+      fiverrUrl: 'https://www.fiverr.com/search/gigs?query=Cybersecurity%20Analyst%20Intern'
+    },
+    {
+      id: 'mock-job-4',
+      title: 'Cloud Support Associate',
+      company: 'CloudWorks',
+      description: 'Provide technical support to customers using our cloud platform. Troubleshoot issues related to AWS, Azure, and GCP services. Excellent communication skills are a must.',
+      location: 'Remote',
+      linkedInUrl: 'https://www.linkedin.com/jobs/search/?keywords=Cloud%20Support%20Associate',
+      upworkUrl: 'https://www.upwork.com/nx/jobs/search/?q=Cloud%20Support%20Associate',
+      fiverrUrl: 'https://www.fiverr.com/search/gigs?query=Cloud%20Support%20Associate'
+    },
+    {
+      id: 'mock-job-5',
+      title: 'Junior Data Analyst',
+      company: 'Data Insights LLC',
+      description: 'Work with our data science team to analyze large datasets, generate reports, and create visualizations. Basic knowledge of SQL and Python is required.',
+      location: 'Remote',
+      linkedInUrl: 'https://www.linkedin.com/jobs/search/?keywords=Junior%20Data%20Analyst',
+      upworkUrl: 'https://www.upwork.com/nx/jobs/search/?q=Junior%20Data%20Analyst',
+      fiverrUrl: 'https://www.fiverr.com/search/gigs?query=Junior%20Data%20Analyst'
+    }
+  ];
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (req.method !== 'POST') {
         res.setHeader('Allow', ['POST']);
@@ -28,8 +81,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
     
     if (!ai) {
-        console.error("API key not configured. Cannot fetch jobs.");
-        return res.status(500).json({ error: 'AI service is not configured on the server. Please add API_KEY to environment variables.' });
+        console.warn("API key not configured. Returning mock job data.");
+        res.setHeader('X-Is-Mock', 'true');
+        await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate network delay
+        return res.status(200).json(mockJobs);
     }
 
     try {

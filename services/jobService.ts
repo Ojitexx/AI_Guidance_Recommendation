@@ -20,7 +20,6 @@ export const fetchJobs = async (query: string): Promise<Job[]> => {
     }
 
     const jobs: Job[] = await response.json();
-    // Gemini sometimes returns fewer jobs than requested, so no need to slice.
     return jobs;
     
   } catch (error) {
